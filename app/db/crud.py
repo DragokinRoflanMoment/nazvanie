@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from .models import Book,Category
+from app.schemas import CategoryCreate, BookCreate, BookUpdate
 
 #для категорий
 
-def create_category(db: Session, title: str):
-    category = Category(title=title)
+def create_category(db: Session, category: CategoryCreate):
+    category = Category(title=category.title)
     db.add(category)
     db.commit()
     db.refresh(category)
@@ -33,13 +34,13 @@ def delete_category(db: Session, category_id: int):
 
 #книги
 
-def create_book(db: Session, title: str, description: str, price: float, category_id: int, url: str = None):
+def create_book(db: Session, book: BookCreate):
     book = Book(
-        title = title,
-        description = description,
-        price = price,
-        url = url,
-        category_id = category_id
+        title = book.title,
+        description = book.description,
+        price = book.price,
+        url = book.url,
+        category_id = book.category_id
     )
     db.add(book)
     db.commit()
@@ -49,25 +50,28 @@ def create_book(db: Session, title: str, description: str, price: float, categor
 def get_book(db: Session, book_id: int):
     return db.query(Book).filter(Book.id == book_id).first()
 
+def get_books_by_category_id(db: Session, category_id: int):
+    return db.query(Book).filter(Book.category_id == category_id).all()
+
 def get_all_books(db: Session):
     return db.query(Book).all()
 
-def update_book(db: Session, book_id: int, title: str = None, description: str = None, price: float = None, category_id: int = None, url: str = None):
+def update_book(db: Session, book_id: int, book_data: BookUpdate):
     book = db.query(Book).filter(Book.id == book_id).first()
-    if book:
-        if title is not None:
-            book.title = title
-        if description is not None:
-            book.description = description
-        if price is not None:
-            book.price = price
-        if category_id is not None:
-            book.category_id = category_id
-        if url is not None:
-            book.url = url
-        db.commit()
-        db.refresh(book)
-    return
+    
+    if not book:
+        return None
+    
+    book.title = book_data.title
+    book.description = book_data.description
+    book.price = book_data.price
+    book.category_id = book_data.category_id
+    book.url = book_data.url
+
+    db.commit
+    db.refresh(book)
+
+    return book
 
 def delete_book(db: Session, book_id: int):
     book = db.query(Book).filter(Book.id == book_id).first()
