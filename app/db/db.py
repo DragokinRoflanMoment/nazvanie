@@ -1,8 +1,19 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+load_dotenv()
+
 #данные БД
-DB_URL = "postgresql://octagon:1@localhost:5432/octagon_db"
+DB_URL = DB_URL = (
+    f"postgresql+psycopg2://"
+    f"{os.getenv('DB_USER')}:"
+    f"{os.getenv('DB_PASSWORD')}@"
+    f"{os.getenv('DB_HOST')}:"
+    f"{os.getenv('DB_PORT')}/"
+    f"{os.getenv('DB_NAME')}"
+)
 
 engine = create_engine(DB_URL)
 

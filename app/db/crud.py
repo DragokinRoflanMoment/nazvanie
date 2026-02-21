@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from .models import Book,Category
-from app.schemas import CategoryCreate, BookCreate, BookUpdate
+from app.schemas import CategoryCreate, BookCreate, BookUpdate, CategoryUpdate
 
 #для категорий
 
@@ -17,12 +17,20 @@ def get_category(db: Session, category_id: int):
 def get_all_categories(db: Session):
     return db.query(Category).all()
 
-def update_category(db: Session, category_id: int, title: str):
+def update_category(db: Session, category_id: int, category_data: CategoryUpdate):
     category = db.query(Category).filter(Category.id == category_id).first()
-    if category:
-        category.title = title
-        db.commit()
-        db.refresh(category)
+
+    if not category:
+        return None
+
+    update_data = category_data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(category, key, value)
+
+    db.commit()
+    db.refresh(category)
+
     return category
 
 def delete_category(db: Session, category_id: int):
@@ -58,17 +66,16 @@ def get_all_books(db: Session):
 
 def update_book(db: Session, book_id: int, book_data: BookUpdate):
     book = db.query(Book).filter(Book.id == book_id).first()
-    
+
     if not book:
         return None
-    
-    book.title = book_data.title
-    book.description = book_data.description
-    book.price = book_data.price
-    book.category_id = book_data.category_id
-    book.url = book_data.url
 
-    db.commit
+    update_data = book_data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(book, key, value)
+
+    db.commit()
     db.refresh(book)
 
     return book

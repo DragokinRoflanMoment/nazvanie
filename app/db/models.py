@@ -13,7 +13,7 @@ class Category(Base):
 class Book(Base):
     __tablename__ = "books"
 
-    id = id = Column(Integer, primary_key=True,index=True)
+    id = Column(Integer, primary_key=True,index=True)
     title = Column(String,nullable=False)
     description = Column(String,nullable=True)
     price = Column(Float, nullable=False)
